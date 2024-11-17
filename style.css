@@ -9,7 +9,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 .display {
-  width: 100%;
+  width: auto;
   height: 60px;
   font-size: 28px;
   text-align: right;
