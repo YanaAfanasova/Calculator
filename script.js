@@ -7,9 +7,14 @@ let currentInput = '';  // Текущее число или операция
 let previousInput = ''; // Предыдущее число
 let operation = null;   // Выбранная операция
 
+// Функция для формирования выражения
+function getExpression() {
+  return `${previousInput} ${operation || ''} ${currentInput}`.trim();
+}
+
 // Функция для обновления дисплея
-function updateDisplay(value) {
-  display.textContent = value;
+function updateDisplay() {
+  display.textContent = getExpression() || '0';
 }
 
 // Обработчик нажатий кнопок
@@ -20,16 +25,43 @@ buttons.forEach(button => {
     // Обработка ввода чисел
     if (!isNaN(buttonValue)) {
       currentInput += buttonValue;
-      updateDisplay(currentInput);
+      updateDisplay();
     }
 
     // Обработка операций
     if (['+', '−', '×', '÷'].includes(buttonValue)) {
       if (currentInput !== '') {
-        previousInput = currentInput;
-        currentInput = '';
+        if (previousInput && operation) {
+          // Выполнить предыдущую операцию, если продолжается ввод
+          const num1 = parseFloat(previousInput);
+          const num2 = parseFloat(currentInput);
+          let result;
+
+          switch (operation) {
+            case '+':
+              result = num1 + num2;
+              break;
+            case '−':
+              result = num1 - num2;
+              break;
+            case '×':
+              result = num1 * num2;
+              break;
+            case '÷':
+              result = num2 !== 0 ? num1 / num2 : 'Ошибка';
+              break;
+          }
+
+          previousInput = result.toString();
+          currentInput = '';
+          operation = buttonValue;
+        } else {
+          previousInput = currentInput;
+          currentInput = '';
+          operation = buttonValue;
+        }
+        updateDisplay();
       }
-      operation = buttonValue;
     }
 
     // Обработка кнопки "="
@@ -39,7 +71,6 @@ buttons.forEach(button => {
         const num2 = parseFloat(currentInput);
         let result;
 
-        // Выполняем выбранную операцию
         switch (operation) {
           case '+':
             result = num1 + num2;
@@ -59,6 +90,7 @@ buttons.forEach(button => {
         currentInput = result.toString();
         previousInput = '';
         operation = null;
+        display.textContent = result; // Отображаем только результат
       }
     }
 
@@ -67,7 +99,7 @@ buttons.forEach(button => {
       currentInput = '';
       previousInput = '';
       operation = null;
-      updateDisplay('0');
+      updateDisplay();
     }
   });
 });
