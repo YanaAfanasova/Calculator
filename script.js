@@ -19,13 +19,29 @@ function updateDisplay() {
   display.textContent = getExpression() || '0';
 }
 
+
 // Функция для добавления записи в историю
 function addToHistory(expression, result) {
   if (history) { // Убедимся, что элемент history существует
+    const smiley = history.querySelector('.smiley');
+    if (smiley) {
+      smiley.remove(); // Удаляем смайлик, если он есть
+    }
     const historyItem = document.createElement('div');
     historyItem.textContent = `${expression} = ${result}`;
     history.appendChild(historyItem);
     history.scrollTop = history.scrollHeight; // Прокрутка вниз, если много записей
+  }
+}
+
+// Функция для отображения смайлика
+function showSmiley() {
+  if (history) {
+    history.innerHTML = ''; // Очищаем поле истории
+    const smiley = document.createElement('div');
+    smiley.className = 'smiley';
+    smiley.textContent = 'ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧'; // Смайлик
+    history.appendChild(smiley);
   }
 }
 
@@ -119,6 +135,7 @@ buttons.forEach(button => {
     }
 
     // Обработка кнопки "C" (очистка)
+    // Обработка кнопки "C" (очистка)
     if (buttonValue === 'C') {
       currentInput = '';
       previousInput = '';
@@ -126,7 +143,9 @@ buttons.forEach(button => {
       isResultDisplayed = false; // Сбрасываем флаг результата
       updateDisplay();
       history.innerHTML = ''; // Очищаем историю
+      showSmiley(); // Показываем смайлик
       return;
     }
+
   });
 });
