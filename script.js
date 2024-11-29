@@ -25,6 +25,7 @@ function addToHistory(expression, result) {
     const historyItem = document.createElement('div');
     historyItem.textContent = `${expression} = ${result}`;
     history.appendChild(historyItem);
+    history.scrollTop = history.scrollHeight; // Прокрутка вниз, если много записей
   }
 }
 
@@ -124,6 +125,7 @@ buttons.forEach(button => {
       operation = null;
       isResultDisplayed = false; // Сбрасываем флаг результата
       updateDisplay();
+      history.innerHTML = ''; // Очищаем историю
       return;
     }
   });
