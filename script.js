@@ -1,11 +1,13 @@
 // Получаем элементы
 const display = document.querySelector('.display');
 const buttons = document.querySelectorAll('button');
+const history = document.querySelector('.history');
 
 // Переменные для хранения текущего состояния
-let currentInput = '';  // Текущее число или операция
-let previousInput = ''; // Предыдущее число
-let operation = null;   // Выбранная операция
+let currentInput = '';      // Текущее число или операция
+let previousInput = '';     // Предыдущее число
+let operation = null;       // Выбранная операция
+let isResultDisplayed = false; // Флаг, отображается ли результат
 
 // Функция для формирования выражения
 function getExpression() {
@@ -17,6 +19,15 @@ function updateDisplay() {
   display.textContent = getExpression() || '0';
 }
 
+// Функция для добавления записи в историю
+function addToHistory(expression, result) {
+  if (history) { // Убедимся, что элемент history существует
+    const historyItem = document.createElement('div');
+    historyItem.textContent = `${expression} = ${result}`;
+    history.appendChild(historyItem);
+  }
+}
+
 // Обработчик нажатий кнопок
 buttons.forEach(button => {
   button.addEventListener('click', () => {
@@ -24,15 +35,21 @@ buttons.forEach(button => {
 
     // Обработка ввода чисел
     if (!isNaN(buttonValue)) {
-      currentInput += buttonValue;
+      if (isResultDisplayed) {
+        // Если результат отображается, сбросить текущий ввод
+        currentInput = '';
+        isResultDisplayed = false; // Сбрасываем флаг
+      }
+      currentInput += buttonValue; // Добавляем число
       updateDisplay();
+      return;
     }
 
     // Обработка операций
     if (['+', '−', '×', '÷'].includes(buttonValue)) {
       if (currentInput !== '') {
         if (previousInput && operation) {
-          // Выполнить предыдущую операцию, если продолжается ввод
+          // Выполняем предыдущую операцию, если продолжается ввод
           const num1 = parseFloat(previousInput);
           const num2 = parseFloat(currentInput);
           let result;
@@ -60,8 +77,10 @@ buttons.forEach(button => {
           currentInput = '';
           operation = buttonValue;
         }
+        isResultDisplayed = false; // Сбрасываем флаг результата
         updateDisplay();
       }
+      return;
     }
 
     // Обработка кнопки "="
@@ -85,13 +104,17 @@ buttons.forEach(button => {
             result = num2 !== 0 ? num1 / num2 : 'Ошибка';
             break;
         }
+        
+        const expression = getExpression();
+        addToHistory(expression, result); // Добавляем в историю
 
-        updateDisplay(result);
-        currentInput = result.toString();
+        currentInput = result.toString(); // Сохраняем результат как текущий ввод
         previousInput = '';
         operation = null;
-        display.textContent = result; // Отображаем только результат
+        isResultDisplayed = true; // Устанавливаем флаг результата
+        updateDisplay();
       }
+      return;
     }
 
     // Обработка кнопки "C" (очистка)
@@ -99,7 +122,9 @@ buttons.forEach(button => {
       currentInput = '';
       previousInput = '';
       operation = null;
+      isResultDisplayed = false; // Сбрасываем флаг результата
       updateDisplay();
+      return;
     }
   });
 });
